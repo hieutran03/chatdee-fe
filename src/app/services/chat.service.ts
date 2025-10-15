@@ -1,5 +1,5 @@
-import { baseApi } from './baseApi'
-import type { Message } from '@/features/chat/chat.slice'
+import { baseApi } from './baseApi';
+import type { Message } from '@/features/chat/chat.slice';
 
 export const chatService = baseApi.injectEndpoints({
   endpoints: (b) => ({
@@ -12,6 +12,6 @@ export const chatService = baseApi.injectEndpoints({
       invalidatesTags: ['Messages'],
     }),
   }),
-})
+});
 
-export const { useListMessagesQuery, useSendMessageMutation } = chatService
+export const { useListMessagesQuery, useSendMessageMutation } = chatService;

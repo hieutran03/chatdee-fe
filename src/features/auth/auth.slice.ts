@@ -1,19 +1,24 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { storage } from '@/libs/storage';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { UserData } from './types';
 
 type AuthState = {
   accessToken: string | null;
-  me: import("./types").User | null;
+  me: UserData | null;
 };
-const initialState: AuthState = { accessToken: null, me: null };
+const initialState: AuthState = {
+  accessToken: storage.get('accessToken') || null,
+  me: storage.get('me') || null,
+};
 
 const slice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     setToken(s, a: PayloadAction<string | null>) {
       s.accessToken = a.payload;
     },
-    setMe(s, a: PayloadAction<AuthState["me"]>) {
+    setMe(s, a: PayloadAction<AuthState['me']>) {
       s.me = a.payload;
     },
     logout(s) {

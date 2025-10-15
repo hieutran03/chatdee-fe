@@ -1,2 +1,10 @@
-:root { font-synthesis-weight: none; text-rendering: optimizeLegibility; }
-html, body, #root { height: 100%; margin: 0; }
+:root {
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
