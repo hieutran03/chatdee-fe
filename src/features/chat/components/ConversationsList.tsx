@@ -1,19 +1,31 @@
-import { Paper, Typography, Divider, List, ListItem, ListItemText } from '@mui/material';
+import { Paper, Typography, Divider, List, ListItem, ListItemText, Box } from '@mui/material';
 import ConversationItem from './ConversationItem';
-import type { ConversationPreview } from '../utils';
+import { Conversation } from '../types';
 
 type Props = {
-  conversations: ConversationPreview[];
+  conversations: Conversation[];
 };
 
 export default function ConversationsList({ conversations }: Props) {
   return (
-    <Paper sx={{ p: 1, height: '100%', overflow: 'auto' }}>
-      <Typography variant="h6" mb={1} sx={{ px: 1 }}>
-        Conversations
-      </Typography>
+    <Box
+      sx={{
+        p: 1,
+        height: '100%',
+        overflow: 'auto',
+        bgcolor: '#f5f5f5',
+        border: '1px solid #ddd',
+        borderRadius: 2,
+      }}
+    >
+      <Box>
+        <Typography variant="h6" mb={1} sx={{ px: 1 }} textAlign="center">
+          Conversations
+        </Typography>
+      </Box>
+
       <Divider />
-      <List>
+      <List sx={{ display: 'flex', flexFlow: 'column', gap: 4 }}>
         {conversations.map((c) => (
           <ConversationItem key={c.id} conversation={c} />
         ))}
@@ -23,6 +35,6 @@ export default function ConversationsList({ conversations }: Props) {
           </ListItem>
         )}
       </List>
-    </Paper>
+    </Box>
   );
 }

@@ -2,13 +2,14 @@ import { Box, List, ListItem, ListItemText, Paper } from '@mui/material';
 import { useListMessagesQuery } from '@/app/services/chat.service';
 import MessageInput from './MessageInput';
 import ConversationsList from './components/ConversationsList';
-import { makeConversationsFromMessages } from './utils';
+import { useGetConversationsQuery } from '@/app/services/conversation.service';
+// import { makeConversationsFromMessages } from './utils';
 
 export default function ChatPage() {
   const { data } = useListMessagesQuery();
 
-  const conversations = makeConversationsFromMessages(data);
-
+  const { data: conversationResponse } = useGetConversationsQuery();
+  const conversations = conversationResponse?.data?.items || [];
   return (
     <Box
       p={2}

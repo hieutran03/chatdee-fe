@@ -12,6 +12,6 @@ export const baseApi = createApi({
     },
     // credentials: 'include',
   }),
-  tagTypes: ['Me', 'Messages'],
+  tagTypes: ['Me', 'Messages', 'Conversations'],
   endpoints: () => ({}),
 });
