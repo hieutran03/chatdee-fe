@@ -59,4 +59,5 @@ export type Conversation = {
   lastMessage: string;
   topMembers: Member[];
   totalMembers: number;
+  updatedAt: Date;
 };
