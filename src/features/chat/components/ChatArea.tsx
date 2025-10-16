@@ -1,10 +1,12 @@
-import { Box, List, ListItem, ListItemText } from '@mui/material';
+import { Box } from '@mui/material';
 import MessageInput from '../MessageInput';
 import { Message } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import { useGetMessagesQuery } from '@/app/services/chat.service';
 import { ScrollArea } from '@/components/scroll/ScrollArea';
 import { RelativeTime } from '@/components/RelativeTime';
+import MessageItem from './MessageItem';
+import { useAppSelector } from '@/hooks/useAppSelector';
 
 export function ChatArea({ conversationId }: { conversationId: string }) {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
@@ -25,6 +27,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
       skip: !conversationId,
     },
   );
+
+  const me = useAppSelector((s) => s.auth.me);
 
   useEffect(() => {
     return () => {
@@ -47,7 +51,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
 
   useEffect(() => {
     if (resp && resp.data.items.length > 0) {
-      setMessages([...resp.data.items, ...messages]);
+      // Prepend older messages; use functional update to avoid stale closure
+      setMessages((prev) => [...resp.data.items, ...prev]);
       setPrevCursor(resp.data.meta?.prevCursor);
     }
   }, [resp]);
@@ -72,16 +77,7 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
           <Box>
             {messages.length > 0
               ? messages.map((m) => (
-                  <ListItem key={m.id}>
-                    <ListItemText
-                      primary={
-                        <>
-                          {m.sender.name} • <RelativeTime date={m.createdAt} />
-                        </>
-                      }
-                      secondary={m.content}
-                    />
-                  </ListItem>
+                  <MessageItem key={m.id} message={m} isOwn={m.sender.id === me?.id} />
                 ))
               : null}
           </Box>
