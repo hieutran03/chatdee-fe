@@ -26,14 +26,6 @@ export default function ConversationsList() {
         setItems((prev) => [...prev, ...([...resp.data.items].reverse() || [])]);
       }
       setPrevCursor(resp.data.meta?.prevCursor);
-      console.log(
-        '[ConversationsList] fetched page, cursor=',
-        cursor,
-        'prevCursor=',
-        resp.data.meta?.prevCursor,
-        'items=',
-        resp.data.items,
-      );
     }
   }, [resp]);
 
@@ -53,7 +45,6 @@ export default function ConversationsList() {
         const threshold = 0.9;
         if (el.scrollTop + el.clientHeight >= el.scrollHeight * threshold) {
           if (prevCursor && !isFetching) {
-            console.log('[ConversationsList] loadMore triggered, setting cursor=', prevCursor);
             setCursor(prevCursor);
           }
         }

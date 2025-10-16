@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-export type Message = { id: string; from: 'me' | 'bot' | 'user'; text: string; createdAt: string };
+import { Message } from 'react-hook-form';
 type ChatState = { items: Message[] };
 const initial: ChatState = { items: [] };
 

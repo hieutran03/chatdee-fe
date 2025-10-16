@@ -1,12 +1,18 @@
 import { ListItem, ListItemAvatar, Avatar, ListItemText, ListItemButton } from '@mui/material';
 import { Conversation } from '../types';
+import { useChatUI } from '../hooks/useChatUI';
 
 type Props = {
   conversation: Conversation;
-  onClick?: () => void;
 };
 
-export default function ConversationItem({ conversation, onClick }: Props) {
+export default function ConversationItem({ conversation }: Props) {
+  const { setSelectedConversationId } = useChatUI();
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const conversationId = conversation.id;
+    setSelectedConversationId(conversationId);
+  };
   const initials =
     conversation.topMembers && conversation.topMembers.length > 0
       ? conversation.topMembers
@@ -26,7 +32,7 @@ export default function ConversationItem({ conversation, onClick }: Props) {
 
   return (
     <ListItem disablePadding>
-      <ListItemButton onClick={onClick}>
+      <ListItemButton onClick={handleClick}>
         <ListItemAvatar>
           {/* If an avatar URL exists, use it as src; otherwise show computed initials */}
           <Avatar src={conversation.avatar}>{conversation.avatar ? undefined : initials}</Avatar>

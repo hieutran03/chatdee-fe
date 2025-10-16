@@ -1,12 +1,11 @@
-import { Box, List, ListItem, ListItemText, Paper } from '@mui/material';
-import { useListMessagesQuery } from '@/app/services/chat.service';
-import MessageInput from './MessageInput';
+import { Box } from '@mui/material';
 import ConversationsList from './components/ConversationsList';
+import { ChatArea } from './components/ChatArea';
+import { useChatUI } from './hooks/useChatUI';
 // import { makeConversationsFromMessages } from './utils';
 
 export default function ChatPage() {
-  const { data } = useListMessagesQuery();
-
+  const { selectedConversationId } = useChatUI();
   return (
     <Box
       p={2}
@@ -16,23 +15,12 @@ export default function ChatPage() {
       height="100vh"
     >
       <ConversationsList />
-
+      {selectedConversationId !== null ? (
+        <ChatArea key={selectedConversationId} conversationId={selectedConversationId} />
+      ) : (
+        <></>
+      )}
       {/* Main chat area */}
-      <Box display="grid" gridTemplateRows="1fr auto" gap={2}>
-        <Paper sx={{ p: 2, overflow: 'auto' }}>
-          <List>
-            {data?.map((m) => (
-              <ListItem key={m.id}>
-                <ListItemText
-                  primary={`${m.from} • ${new Date(m.createdAt).toLocaleTimeString()}`}
-                  secondary={m.text}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-        <MessageInput />
-      </Box>
     </Box>
   );
 }

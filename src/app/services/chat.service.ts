@@ -1,10 +1,19 @@
+import { Message } from '@/features/chat/types';
+import { ApiResponse } from '../types/api-response.type';
+import { CursorBasedPagination } from '../types/cursor-based-pagination.type';
+import { CursorBasedQuery } from '../types/cursor-based-query.type';
 import { baseApi } from './baseApi';
-import type { Message } from '@/features/chat/chat.slice';
 
 export const chatService = baseApi.injectEndpoints({
   endpoints: (b) => ({
-    listMessages: b.query<Message[], void>({
-      query: () => ({ url: '/chat/messages' }),
+    getMessages: b.query<
+      ApiResponse<CursorBasedPagination<Message>>,
+      { conversationId: string; query: CursorBasedQuery }
+    >({
+      query: ({ conversationId, query }) => ({
+        url: `/conversations/${conversationId}/messages`,
+        params: { ...query },
+      }),
       providesTags: ['Messages'],
     }),
     sendMessage: b.mutation<Message, { text: string }>({
@@ -14,4 +23,4 @@ export const chatService = baseApi.injectEndpoints({
   }),
 });
 
-export const { useListMessagesQuery, useSendMessageMutation } = chatService;
+export const { useGetMessagesQuery, useSendMessageMutation } = chatService;

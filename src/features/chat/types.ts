@@ -1,5 +1,3 @@
-import { UUID } from 'crypto';
-
 export enum ConversationRole {
   ADMIN = 'admin',
   MEMBER = 'member',
@@ -38,7 +36,7 @@ export type Message = {
   createdAt: string;
   updatedAt: string;
   sender: {
-    id: UUID;
+    id: string;
     name: string;
     avatar: string;
   };

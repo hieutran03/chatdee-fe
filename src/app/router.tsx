@@ -4,13 +4,23 @@ import LoginPage from '@/features/auth/LoginPage';
 import ChatPage from '@/features/chat/ChatPage';
 import LoadingScreen from '@/components/LoadingScreen';
 import AuthGuard from '@/guards/AuthGuard';
+import { ChatUIProvider } from '@/features/chat/chatContext';
 
 const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   {
     path: '/',
     element: <AuthGuard />,
-    children: [{ index: true, element: <ChatPage /> }],
+    children: [
+      {
+        index: true,
+        element: (
+          <ChatUIProvider>
+            <ChatPage />
+          </ChatUIProvider>
+        ),
+      },
+    ],
   },
   { path: '*', element: <div>Not found</div> },
 ]);
