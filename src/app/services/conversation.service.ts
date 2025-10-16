@@ -5,8 +5,15 @@ import { baseApi } from './baseApi';
 
 export const conversationService = baseApi.injectEndpoints({
   endpoints: (b) => ({
-    getConversations: b.query<ApiResponse<CursorBasedPagination<Conversation>>, void>({
-      query: () => ({ url: '/conversations' }),
+    // allow passing limit, cursor and include params
+    getConversations: b.query<
+      ApiResponse<CursorBasedPagination<Conversation>>,
+      { limit?: number; cursor?: string; include?: string } | void
+    >({
+      query: (arg) => ({
+        url: '/conversations',
+        params: arg ? { limit: arg.limit, cursor: arg.cursor, include: arg.include } : undefined,
+      }),
       providesTags: ['Conversations'],
     }),
   }),

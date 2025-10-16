@@ -27,7 +27,7 @@ export default function MessageInput() {
           }
         }}
       />
-      <IconButton onClick={onSend} disabled={isLoading}>
+      <IconButton sx={{ color: '#38e1ffe0' }} onClick={onSend} disabled={isLoading}>
         <SendIcon />
       </IconButton>
     </Box>

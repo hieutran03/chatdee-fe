@@ -1,8 +1,7 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAppSelector } from '@/hooks/useAppSelector';
 
-export default function AuthGuard({ children }: { children: ReactNode }) {
+export default function AuthGuard() {
   const token = useAppSelector((s) => s.auth.accessToken);
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
 }
