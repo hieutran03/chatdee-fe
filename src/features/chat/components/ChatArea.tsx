@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/scroll/ScrollArea';
 import { RelativeTime } from '@/components/RelativeTime';
 
 export function ChatArea({ conversationId }: { conversationId: string }) {
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [prevCursor, setPrevCursor] = useState<string | undefined>(undefined);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,7 +18,7 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
       conversationId: conversationId!,
       query: {
         limit: 15,
-        cursor: prevCursor,
+        cursor: cursor,
       },
     },
     {
@@ -46,8 +47,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
 
   useEffect(() => {
     if (resp && resp.data.items.length > 0) {
-      setMessages(resp.data.items);
-      // setPrevCursor(resp.data.meta?.prevCursor);
+      setMessages([...resp.data.items, ...messages]);
+      setPrevCursor(resp.data.meta?.prevCursor);
     }
   }, [resp]);
 
@@ -62,8 +63,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
             const el = e.currentTarget as HTMLDivElement;
             const threshold = 0.1;
             if (el.scrollTop <= el.scrollHeight * threshold) {
-              if (prevCursor && !isFetching) {
-                setPrevCursor(prevCursor);
+              if (!isFetching && prevCursor) {
+                setCursor(prevCursor);
               }
             }
           }}
