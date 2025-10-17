@@ -14,6 +14,8 @@ import { useChatUI } from '../hooks/useChatUI';
 import { motion } from 'framer-motion';
 import { FormatTimeUtils } from '@/utils/formatTimeUtils';
 import { RelativeTime } from '@/components/RelativeTime';
+import { CompositeAvatar } from './CompositeAvatar';
+import { CompositeTitle } from './CompositeTitle';
 
 type Props = {
   conversation: Conversation;
@@ -64,32 +66,35 @@ export default function ConversationItem({ conversation }: Props) {
       >
         <ListItemAvatar>
           <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.15 }}>
-            <Avatar
-              src={conversation.avatar}
-              sx={{
-                width: 44,
-                height: 44,
-                bgcolor: '#1997eb',
-                fontWeight: 600,
-              }}
-            >
-              {conversation.avatar ? undefined : initials}
-            </Avatar>
+            {conversation.avatar ? (
+              <Avatar
+                src={conversation.avatar}
+                sx={{ width: 44, height: 44, bgcolor: '#1997eb', fontWeight: 600 }}
+              />
+            ) : (
+              <CompositeAvatar members={conversation.topMembers} size={44} />
+            )}
           </motion.div>
         </ListItemAvatar>
 
         <ListItemText
           primary={
             <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography
-                variant="subtitle1"
-                noWrap
-                fontWeight={isSelected ? 600 : 500}
-                color={isSelected ? 'primary.main' : 'text.primary'}
+              <Box
                 component="span"
+                sx={{
+                  fontWeight: isSelected ? 600 : 500,
+                  color: isSelected ? 'primary.main' : 'text.primary',
+                }}
               >
-                {conversation.title}
-              </Typography>
+                {conversation.title ? (
+                  <Typography variant="subtitle1" noWrap component="span">
+                    {conversation.title}
+                  </Typography>
+                ) : (
+                  <CompositeTitle members={conversation.topMembers} />
+                )}
+              </Box>
               <Typography
                 variant="caption"
                 color="text.secondary"
