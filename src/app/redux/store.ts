@@ -2,10 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import rootReducer from './rootReducer';
 import { baseApi } from '@/app/services/baseApi';
 import rtkErrorLogger from '@/app/middlewares/rtkErrorLogger';
+import { socketMiddleware } from '../middlewares/socketMIddleware';
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: (getDefault) => getDefault().concat(baseApi.middleware, rtkErrorLogger),
+  middleware: (getDefault) =>
+    getDefault().concat(baseApi.middleware, socketMiddleware, rtkErrorLogger),
   devTools: import.meta.env.DEV,
 });
 
