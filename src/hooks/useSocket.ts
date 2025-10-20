@@ -1,13 +1,12 @@
 // src/hooks/useSocket.ts
 import { io, Socket } from 'socket.io-client';
 import { useEffect } from 'react';
-import { useAppDispatch } from './useAppDispatch';
-import { addMessage } from '@/features/chat/chat.slice';
+import { useChatUI } from '@/features/chat/hooks/useChatUI';
 
 const SOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 export function useSocket(token?: string) {
-  const dispatch = useAppDispatch();
+  const { appendMessage } = useChatUI();
 
   useEffect(() => {
     if (!token) return;
@@ -20,7 +19,7 @@ export function useSocket(token?: string) {
     (window as any).socket = socket; // lưu global cho middleware dùng
 
     socket.on('chat', (msg) => {
-      dispatch(addMessage(msg));
+      appendMessage(msg);
     });
 
     return () => {

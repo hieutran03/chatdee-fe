@@ -1,18 +1,16 @@
 import { Box } from '@mui/material';
 import MessageInput from '../MessageInput';
-import { Message } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import { useGetMessagesQuery } from '@/app/services/chat.service';
 import { ScrollArea } from '@/components/scroll/ScrollArea';
-import { RelativeTime } from '@/components/RelativeTime';
 import MessageItem from './MessageItem';
 import { useAppSelector } from '@/hooks/useAppSelector';
+import { useChatUI } from '../hooks/useChatUI';
 
 export function ChatArea({ conversationId }: { conversationId: string }) {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [prevCursor, setPrevCursor] = useState<string | undefined>(undefined);
 
-  const [messages, setMessages] = useState<Message[]>([]);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const firstLoadRef = useRef<boolean>(true);
   const { data: resp, isFetching } = useGetMessagesQuery(
@@ -29,11 +27,13 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
   );
 
   const me = useAppSelector((s) => s.auth.me);
+  const { getMessages, setPage, getPrevCursor } = useChatUI();
+  const messages = getMessages(conversationId);
+  const prevCursorFromStore = getPrevCursor(conversationId);
 
   useEffect(() => {
     return () => {
       // cleanup on unmount
-      setMessages([]);
       firstLoadRef.current = true;
       setPrevCursor(undefined);
     };
@@ -51,11 +51,18 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
 
   useEffect(() => {
     if (resp && resp.data.items.length > 0) {
-      // Prepend older messages; use functional update to avoid stale closure
-      setMessages((prev) => [...resp.data.items, ...prev]);
+      const isFirstPage = !cursor;
+      // Push into context store as well
+      setPage(conversationId, resp.data.items, resp.data.meta?.prevCursor, { replace: isFirstPage });
+      // Keep local state for immediate rendering and scroll handling
       setPrevCursor(resp.data.meta?.prevCursor);
     }
   }, [resp]);
+  
+  // Keep local prevCursor in sync with store when switching conversations
+  useEffect(() => {
+    setPrevCursor(getPrevCursor(conversationId));
+  }, [conversationId]);
 
   return (
     <>
@@ -68,8 +75,9 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
             const el = e.currentTarget as HTMLDivElement;
             const threshold = 0.1;
             if (el.scrollTop <= el.scrollHeight * threshold) {
-              if (!isFetching && prevCursor) {
-                setCursor(prevCursor);
+              const nextCursor = prevCursor ?? prevCursorFromStore;
+              if (!isFetching && nextCursor) {
+                setCursor(nextCursor);
               }
             }
           }}
