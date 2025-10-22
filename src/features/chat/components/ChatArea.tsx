@@ -5,6 +5,8 @@ import { useGetMessagesQuery } from '@/app/services/chat.service';
 import { ScrollArea } from '@/components/scroll/ScrollArea';
 import MessageItem from './MessageItem';
 import { useAppSelector } from '@/hooks/useAppSelector';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { joinConversation } from '../chat.actions';
 import { useChatUI } from '../hooks/useChatUI';
 
 export function ChatArea({ conversationId }: { conversationId: string }) {
@@ -30,6 +32,7 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
   const { getMessages, setPage, getPrevCursor } = useChatUI();
   const messages = getMessages(conversationId);
   const prevCursorFromStore = getPrevCursor(conversationId);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     return () => {
@@ -38,6 +41,13 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
       setPrevCursor(undefined);
     };
   }, []);
+
+  // Join socket room for this conversation when it becomes active
+  useEffect(() => {
+    if (conversationId) {
+      dispatch(joinConversation(conversationId));
+    }
+  }, [conversationId]);
 
   useEffect(() => {
     if (firstLoadRef.current && messages.length > 0) {
@@ -90,7 +100,7 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
               : null}
           </Box>
         </ScrollArea>
-        <MessageInput />
+        <MessageInput conversationId={conversationId} />
       </Box>
     </>
   );

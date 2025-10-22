@@ -8,7 +8,7 @@ export const conversationService = baseApi.injectEndpoints({
     // allow passing limit, cursor and include params
     getConversations: b.query<
       ApiResponse<CursorBasedPagination<Conversation>>,
-      { limit?: number; cursor?: string; include?: string } | void
+      { limit?: number; cursor?: string; include?: string[] } | void
     >({
       query: (arg) => ({
         url: '/conversations',

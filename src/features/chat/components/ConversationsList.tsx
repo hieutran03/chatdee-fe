@@ -10,7 +10,7 @@ export default function ConversationsList() {
   const { data: resp, isFetching } = useGetConversationsQuery({
     limit: 10,
     cursor,
-    include: 'topMembers,totalMembers',
+    include: ['topMembers', 'totalMembers'],
   });
 
   const [items, setItems] = useState<Conversation[]>([]);

@@ -46,6 +46,18 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
     });
 
     (window as any).socket = socket;
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+      console.log(socket)
+    });
+
+    socket.on('exception', (err: any) => {
+      console.error('Socket exception:', err);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error('Socket connection error:', err);
+    });
 
     socket.on('chat', (msg: Message) => {
       setByConversation((prev) => {
@@ -59,6 +71,7 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => {
+      console.log('Disconnecting socket:', socket.id);
       socket.disconnect();
       delete (window as any).socket;
     };

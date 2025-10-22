@@ -1,14 +1,17 @@
 import { Box, IconButton, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
-import { useSendMessageMutation } from '@/app/services/chat.service';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { sendMessage } from './chat.actions';
 
-export default function MessageInput() {
+export default function MessageInput({ conversationId }: { conversationId: string }) {
   const [text, setText] = useState('');
-  const [sendMessage, { isLoading }] = useSendMessageMutation();
-  const onSend = async () => {
-    if (!text.trim()) return;
-    await sendMessage({ text }).unwrap();
+  const dispatch = useAppDispatch();
+
+  const onSend = () => {
+    const content = text.trim();
+    if (!content) return;
+    dispatch(sendMessage({ conversationId, content, type: 'text' }));
     setText('');
   };
 
@@ -27,7 +30,7 @@ export default function MessageInput() {
           }
         }}
       />
-      <IconButton sx={{ color: '#38e1ffe0' }} onClick={onSend} disabled={isLoading}>
+      <IconButton sx={{ color: '#38e1ffe0' }} onClick={onSend} disabled={!text.trim()}>
         <SendIcon />
       </IconButton>
     </Box>
