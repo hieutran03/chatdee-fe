@@ -15,6 +15,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
 
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const firstLoadRef = useRef<boolean>(true);
+  const prevLenRef = useRef<number>(0);
+  const loadingOlderRef = useRef<boolean>(false);
   const { data: resp, isFetching } = useGetMessagesQuery(
     {
       conversationId: conversationId!,
@@ -59,16 +61,36 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
     }
   }, [messages]);
 
+  // Always scroll to bottom when new messages are appended (not when loading older)
+  useEffect(() => {
+    const element = messagesContainerRef.current;
+    if (!element) return;
+    const prevLen = prevLenRef.current;
+    if (messages.length > prevLen) {
+      if (!loadingOlderRef.current) {
+        requestAnimationFrame(() => {
+          element.scrollTop = element.scrollHeight;
+        });
+      } else {
+        // Reset the flag after handling older messages load
+        loadingOlderRef.current = false;
+      }
+    }
+    prevLenRef.current = messages.length;
+  }, [messages]);
+
   useEffect(() => {
     if (resp && resp.data.items.length > 0) {
       const isFirstPage = !cursor;
       // Push into context store as well
-      setPage(conversationId, resp.data.items, resp.data.meta?.prevCursor, { replace: isFirstPage });
+      setPage(conversationId, resp.data.items, resp.data.meta?.prevCursor, {
+        replace: isFirstPage,
+      });
       // Keep local state for immediate rendering and scroll handling
       setPrevCursor(resp.data.meta?.prevCursor);
     }
   }, [resp]);
-  
+
   // Keep local prevCursor in sync with store when switching conversations
   useEffect(() => {
     setPrevCursor(getPrevCursor(conversationId));
@@ -87,6 +109,8 @@ export function ChatArea({ conversationId }: { conversationId: string }) {
             if (el.scrollTop <= el.scrollHeight * threshold) {
               const nextCursor = prevCursor ?? prevCursorFromStore;
               if (!isFetching && nextCursor) {
+                // Mark that we are loading older messages to prevent auto-scroll-to-bottom
+                loadingOlderRef.current = true;
                 setCursor(nextCursor);
               }
             }

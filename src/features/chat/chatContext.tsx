@@ -21,7 +21,7 @@ type ChatUIContextValue = {
     conversationId: string,
     items: Message[],
     prevCursor?: string,
-    options?: { replace?: boolean }
+    options?: { replace?: boolean },
   ) => void;
   appendMessage: (message: Message) => void;
   clear: () => void;
@@ -48,14 +48,14 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
     (window as any).socket = socket;
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
-      console.log(socket)
+      console.log(socket);
     });
 
     socket.on('exception', (err: any) => {
       console.error('Socket exception:', err);
     });
 
-    socket.on("connect_error", (err) => {
+    socket.on('connect_error', (err) => {
       console.error('Socket connection error:', err);
     });
 
@@ -63,9 +63,33 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
       setByConversation((prev) => {
         const convId = msg.conversationId;
         const bucket = prev[convId] || { items: [] };
+
+        // 1) If the exact id already exists, skip (dedupe)
+        if (bucket.items.some((m) => m.id === msg.id)) {
+          return prev;
+        }
+
+        // 2) Try to replace an optimistic message (id starts with 'tmp-')
+        const optimisticIdx = bucket.items.findIndex(
+          (m) =>
+            typeof m.id === 'string' &&
+            m.id.startsWith('tmp-') &&
+            m.conversationId === msg.conversationId &&
+            m.sender?.id === msg.sender?.id &&
+            m.content === msg.content,
+        );
+
+        let newItems = bucket.items;
+        if (optimisticIdx >= 0) {
+          newItems = [...bucket.items];
+          newItems[optimisticIdx] = msg; // replace optimistic with server message
+        } else {
+          newItems = [...bucket.items, msg]; // append normally
+        }
+
         return {
           ...prev,
-          [convId]: { ...bucket, items: [...bucket.items, msg] },
+          [convId]: { ...bucket, items: newItems },
         };
       });
     });
@@ -80,12 +104,7 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
   const getMessages = (conversationId: string) => byConversation[conversationId]?.items || [];
   const getPrevCursor = (conversationId: string) => byConversation[conversationId]?.prevCursor;
 
-  const setPage: ChatUIContextValue['setPage'] = (
-    conversationId,
-    items,
-    prevCursor,
-    options,
-  ) => {
+  const setPage: ChatUIContextValue['setPage'] = (conversationId, items, prevCursor, options) => {
     const replace = options?.replace ?? false;
     setByConversation((prev) => {
       const bucket = prev[conversationId] || { items: [] };

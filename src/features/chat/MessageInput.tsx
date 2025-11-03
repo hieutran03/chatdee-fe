@@ -2,12 +2,17 @@ import { Box, IconButton, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useRef, useState } from 'react';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { useAppSelector } from '@/hooks/useAppSelector';
 import { sendMessage } from './chat.actions';
 import EmojiPicker from './components/EmojiPicker';
+import { useChatUI } from './hooks/useChatUI';
+import type { Message } from './types';
 
 export default function MessageInput({ conversationId }: { conversationId: string }) {
   const [text, setText] = useState('');
   const dispatch = useAppDispatch();
+  const { appendMessage } = useChatUI();
+  const me = useAppSelector((s) => s.auth.me);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -15,6 +20,24 @@ export default function MessageInput({ conversationId }: { conversationId: strin
     const content = text.trim();
     if (!content) return;
     dispatch(sendMessage({ conversationId, content, type: 'text' }));
+    // Optimistic append so Conversations list updates last message immediately
+    if (me) {
+      const now = new Date().toISOString();
+      const optimistic: Message = {
+        id: 'tmp-' + now,
+        content,
+        conversationId,
+        type: 'text' as any,
+        createdAt: now,
+        updatedAt: now,
+        sender: {
+          id: me.id,
+          name: me.name ?? 'Me',
+          avatar: (me as any).avatar ?? '',
+        },
+      };
+      appendMessage(optimistic);
+    }
     setText('');
     // Keep focus on input after sending
     requestAnimationFrame(() => inputRef.current?.focus());

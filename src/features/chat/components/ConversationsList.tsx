@@ -4,6 +4,7 @@ import { Conversation } from '../types';
 import { ScrollArea } from '@/components/scroll/ScrollArea';
 import { useGetConversationsQuery } from '@/app/services/conversation.service';
 import { useEffect, useRef, useState } from 'react';
+import { useChatUI } from '../hooks/useChatUI';
 
 export default function ConversationsList() {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
@@ -16,6 +17,7 @@ export default function ConversationsList() {
   const [items, setItems] = useState<Conversation[]>([]);
   const [prevCursor, setPrevCursor] = useState<string | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const { getMessages } = useChatUI();
 
   useEffect(() => {
     if (resp && resp.data) {
@@ -58,9 +60,20 @@ export default function ConversationsList() {
 
       <Divider />
       <List sx={{ display: 'flex', flexFlow: 'column', gap: 4 }}>
-        {items.map((c) => (
-          <ConversationItem key={c.id} conversation={c} />
-        ))}
+        {items.map((c) => {
+          const msgs = getMessages(c.id);
+          const last = msgs.length > 0 ? msgs[msgs.length - 1] : undefined;
+          const merged: Conversation = last
+            ? {
+                ...c,
+                // Include sender name in the preview line
+                lastMessage: `${last.sender?.name ?? 'Unknown'}: ${last.content ?? ''}`.trim(),
+                // Prefer latest updated time between server and local messages
+                updatedAt: new Date(last.updatedAt || last.createdAt || c.updatedAt),
+              }
+            : c;
+          return <ConversationItem key={c.id} conversation={merged} />;
+        })}
         {items.length === 0 && (
           <ListItem>
             <ListItemText primary="No conversations" />
