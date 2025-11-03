@@ -1,5 +1,4 @@
 import { Box, Drawer, IconButton, Typography } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import ConversationsList from './components/ConversationsList';
 import { ChatArea } from './components/ChatArea';
@@ -30,23 +29,6 @@ export default function ChatPage() {
         <ConversationsList />
       </Box>
 
-      {/* Mobile hamburger button */}
-      <IconButton
-        aria-label="Open conversations"
-        onClick={() => setMobileOpen(true)}
-        sx={{
-          display: { xs: 'inline-flex', md: 'none' },
-          position: 'fixed',
-          top: 12,
-          left: 12,
-          zIndex: (t) => t.zIndex.drawer + 1,
-          bgcolor: 'background.paper',
-          boxShadow: 1,
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-
       {/* Conversations Drawer for mobile */}
       <Drawer anchor="left" open={mobileOpen} onClose={() => setMobileOpen(false)}>
         <Box sx={{ width: 320, height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -74,7 +56,11 @@ export default function ChatPage() {
       </Drawer>
 
       {selectedConversationId !== null ? (
-        <ChatArea key={selectedConversationId} conversationId={selectedConversationId} />
+        <ChatArea
+          key={selectedConversationId}
+          conversationId={selectedConversationId}
+          onOpenConversations={() => setMobileOpen(true)}
+        />
       ) : (
         <BlankArea />
       )}

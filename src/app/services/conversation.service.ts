@@ -16,7 +16,14 @@ export const conversationService = baseApi.injectEndpoints({
       }),
       providesTags: ['Conversations'],
     }),
+    getConversation: b.query<ApiResponse<Conversation>, { id: string; include?: string[] }>({
+      query: ({ id, include }) => ({
+        url: `/conversations/${id}`,
+        params: include ? { include } : undefined,
+      }),
+      providesTags: (res, err, arg) => [{ type: 'Conversations' as const, id: arg.id }],
+    }),
   }),
 });
 
-export const { useGetConversationsQuery } = conversationService;
+export const { useGetConversationsQuery, useGetConversationQuery } = conversationService;
