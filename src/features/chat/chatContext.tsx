@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Message } from './types';
 import { useAppSelector } from '@/hooks/useAppSelector';
-import { io, Socket } from 'socket.io-client';
+import { socketService } from '@/app/services/socketService';
 
 type ConversationBucket = {
   items: Message[];
@@ -39,27 +39,13 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!token) return;
 
-    const SOCKET_URL = (import.meta as any).env.VITE_WEBSOCKET_URL as string;
-    const socket: Socket = io(SOCKET_URL, {
-      auth: { token },
-      transports: ['websocket'],
+    // Connect socket using the service
+    socketService.connect(token).catch((err) => {
+      console.error('Failed to connect socket:', err);
     });
 
-    (window as any).socket = socket;
-    socket.on('connect', () => {
-      console.log('Socket connected:', socket.id);
-      console.log(socket);
-    });
-
-    socket.on('exception', (err: any) => {
-      console.error('Socket exception:', err);
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('Socket connection error:', err);
-    });
-
-    socket.on('chat', (msg: Message) => {
+    // Handle incoming chat messages
+    const handleChatMessage = (msg: Message) => {
       setByConversation((prev) => {
         const convId = msg.conversationId;
         const bucket = prev[convId] || { items: [] };
@@ -92,12 +78,13 @@ export const ChatUIProvider = ({ children }: { children: ReactNode }) => {
           [convId]: { ...bucket, items: newItems },
         };
       });
-    });
+    };
+
+    socketService.on('chat', handleChatMessage);
 
     return () => {
-      console.log('Disconnecting socket:', socket.id);
-      socket.disconnect();
-      delete (window as any).socket;
+      socketService.off('chat', handleChatMessage);
+      socketService.disconnect();
     };
   }, [token]);
 

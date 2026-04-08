@@ -1,18 +1,15 @@
 import { all, call, delay, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 import { joinConversation, sendMessage, SendMessagePayload } from '@/features/chat/chat.actions';
-
-function getSocket(): any {
-  return (window as any).socket;
-}
+import { socketService } from '@/app/services/socketService';
 
 function* waitForSocket(maxRetries = 20, ms = 100): SagaIterator {
   for (let i = 0; i < maxRetries; i++) {
-    const s: any = yield call(getSocket);
-    if (s) return s;
+    const socket = yield call([socketService, socketService.getSocket]);
+    if (socket) return socket;
     yield delay(ms);
   }
-  return null as any;
+  return null;
 }
 
 function* handleJoinConversation(action: ReturnType<typeof joinConversation>): SagaIterator {
@@ -23,7 +20,7 @@ function* handleJoinConversation(action: ReturnType<typeof joinConversation>): S
       socket.emit('join', { conversationId: action.payload });
     }
   } catch (e) {
-    // no-op; could dispatch failure action
+    console.error('Failed to join conversation:', e);
   }
 }
 
@@ -36,7 +33,7 @@ function* handleSendMessage(action: ReturnType<typeof sendMessage>): SagaIterato
       socket.emit('chat', payload);
     }
   } catch (e) {
-    // no-op; could dispatch failure action
+    console.error('Failed to send message:', e);
   }
 }
 
