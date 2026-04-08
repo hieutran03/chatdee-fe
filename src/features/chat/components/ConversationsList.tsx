@@ -5,9 +5,10 @@ import { ScrollArea } from '@/components/scroll/ScrollArea';
 import { useGetConversationsQuery } from '@/app/services/conversation.service';
 import { useEffect, useRef, useState } from 'react';
 import { useChatUI } from '../hooks/useChatUI';
+import { useCursorPagination } from '../hooks/useCursorPagination';
 
 export default function ConversationsList() {
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const { cursor, prevCursor, setCursor, setPrevCursor } = useCursorPagination();
   const { data: resp, isFetching } = useGetConversationsQuery({
     limit: 10,
     cursor,
@@ -15,7 +16,6 @@ export default function ConversationsList() {
   });
 
   const [items, setItems] = useState<Conversation[]>([]);
-  const [prevCursor, setPrevCursor] = useState<string | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { getMessages } = useChatUI();
 
@@ -29,7 +29,7 @@ export default function ConversationsList() {
       }
       setPrevCursor(resp.data.meta?.prevCursor);
     }
-  }, [resp]);
+  }, [resp, cursor, setPrevCursor]);
 
   return (
     <ScrollArea
