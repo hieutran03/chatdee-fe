@@ -1,16 +1,11 @@
 import { Avatar, Box } from '@mui/material';
 import { Member } from '../types';
+import { getInitials } from '@/utils/stringUtils';
 
 type CompositeAvatarProps = {
   members?: Member[];
   size?: number; // container size in px
 };
-
-function getInitials(name?: string) {
-  if (!name) return '?';
-  const parts = name.trim().split(/\s+/).slice(0, 2);
-  return parts.map((p) => p[0]?.toUpperCase() ?? '').join('') || '?';
-}
 
 export function CompositeAvatar({ members = [], size = 44 }: CompositeAvatarProps) {
   const radius = size;

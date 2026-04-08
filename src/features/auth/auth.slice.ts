@@ -1,4 +1,4 @@
-import { storage } from '@/libs/storage';
+import { storage } from '@/utils/storage';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UserData } from './types';
 

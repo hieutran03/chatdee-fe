@@ -12,10 +12,10 @@ import {
 import { Conversation } from '../types';
 import { useChatUI } from '../hooks/useChatUI';
 import { motion } from 'framer-motion';
-import { FormatTimeUtils } from '@/utils/formatTimeUtils';
 import { RelativeTime } from '@/components/RelativeTime';
 import { CompositeAvatar } from './CompositeAvatar';
 import { CompositeTitle } from './CompositeTitle';
+import { getMembersInitials, getInitials } from '@/utils/stringUtils';
 
 type Props = {
   conversation: Conversation;
@@ -31,20 +31,8 @@ export default function ConversationItem({ conversation }: Props) {
 
   const initials =
     conversation.topMembers && conversation.topMembers.length > 0
-      ? conversation.topMembers
-          .slice(0, 2)
-          .map((p) =>
-            p.name && p.name[0] ? p.name[0].toUpperCase() : (p.avatar?.[0]?.toUpperCase() ?? '?'),
-          )
-          .join('')
-      : conversation.title
-        ? conversation.title
-            .split(' ')
-            .map((w) => w[0])
-            .slice(0, 2)
-            .join('')
-            .toUpperCase()
-        : '?';
+      ? getMembersInitials(conversation.topMembers)
+      : getInitials(conversation.title);
 
   const isSelected = selectedConversationId === conversation.id;
 

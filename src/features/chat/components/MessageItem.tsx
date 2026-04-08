@@ -1,5 +1,6 @@
 import { Avatar, Box, Stack, Typography } from '@mui/material';
 import { RelativeTime } from '@/components/RelativeTime';
+import { getInitials } from '@/utils/stringUtils';
 import type { Message } from '../types';
 
 export type MessageItemProps = {
@@ -14,7 +15,7 @@ export type MessageItemProps = {
  * Aligns right for current user's messages, left for others.
  */
 export function MessageItem({ message, isOwn = false, showAvatar = !isOwn, showName = !isOwn }: MessageItemProps) {
-  const initials = (message.sender?.name || '?').trim()[0]?.toUpperCase() || '?';
+  const initials = getInitials(message.sender?.name);
 
   return (
     <Box

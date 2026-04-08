@@ -6,7 +6,7 @@ import { useLoginMutation, useLazyMeQuery } from '@/app/services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { setMe, setToken } from './auth.slice';
-import { storage } from '@/libs/storage';
+import { storage } from '@/utils/storage';
 import { useEffect } from 'react';
 
 const schema = z.object({
